@@ -54,3 +54,11 @@ class Usuario:
 
     def exportarReporte(self, tipo: str, formato: str) -> bool:
         return bool(tipo.strip() and formato.strip())
+
+ #Dentro de la clase Usuario existente:
+    
+    @classmethod
+    def validar_rol(cls, rol):
+        if not isinstance(rol, str) or rol not in cls.ROLES:
+            raise ValueError("Rol no permitido.")
+        return rol

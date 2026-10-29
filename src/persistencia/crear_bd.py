@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     empleado_id INTEGER NULL,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    rol TEXT NOT NULL DEFAULT 'empleado' CHECK (rol IN ('admin', 'empleado')),
     FOREIGN KEY (empleado_id)
         REFERENCES empleado(id_empleado)
 );
@@ -78,6 +79,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     empleado_id INT NULL,
     username VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    rol varchar(10) NOT NULL DEFAULT 'empleado' CHECK (rol IN ('admin', 'empleado')),
     PRIMARY KEY (id),
     CONSTRAINT fk_usuario_empleado
         FOREIGN KEY (empleado_id)

@@ -29,7 +29,7 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Por defecto, el archivo `.env.example` deja configurado SQLite. Si ya existe un archivo `.env`, revisa su configuración antes de copiarlo.
+Por defecto, el archivo `.env.example` deja configurado SQLite 
 
 Para comprobar la sintaxis, ejecutar las pruebas y abrir el sistema:
 
@@ -39,11 +39,9 @@ python -m unittest discover -s tests -v
 python src\main.py
 ```
 
-Al iniciar, el sistema prepara las tablas y carga datos de demostración que no estén registrados todavía. Después muestra la pantalla de inicio de sesión.
+Al iniciar, el sistema prepara las tablas y carga datos de demostración que no estén registrados todavía después mostrara la pantalla de inicio de sesión.
 
 ## Inicio de sesión de prueba
-
-Si se carga la semilla de demostración, puedes probar con cualquiera de estas cuentas:
 
 | Usuario | Contraseña |
 |---|---|
@@ -52,8 +50,7 @@ Si se carga la semilla de demostración, puedes probar con cualquiera de estas c
 | `semilla.valentina` | `EcoTechDemo2026!` |
 | `semilla.diego` | `EcoTechDemo2026!` |
 
-Son credenciales de demostración para el entorno académico local. Cámbialas o elimina los datos de prueba si vas a usar información real.
-
+Son credenciales de demostración para el entorno 
 ## Usar MySQL o MariaDB
 
 1. Inicia MySQL/MariaDB y crea la base de datos. Puedes revisar el archivo `sql/mysql_crear_base.sql`.
