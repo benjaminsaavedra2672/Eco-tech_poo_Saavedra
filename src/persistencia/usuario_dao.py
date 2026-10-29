@@ -33,6 +33,9 @@ class UsuarioDAO:
         obj = Usuario.__new__(Usuario)
         obj.id = row["id"]
         obj.username = row["username"]
+        obj.empleado_id = row["empleado_id"] if "empleado_id" in row.keys() else None
+        obj.nombre_empleado = row["nombre_empleado"] if "nombre_empleado" in row.keys() else None
+        obj.rol = row["rol"] if "rol" in row.keys() else None
         obj._password_hash = row["password_hash"]
         return obj
 
@@ -41,9 +44,9 @@ class UsuarioDAO:
         conn = abrir_conexion()
         try:
             row = conn.execute("""
-                SELECT id, username, password_hash
-                FROM usuario
-                WHERE id = ?
+                SELECT u.id, u.username, u.password_hash, e.id_empleado AS empleado_id, e.nombre AS nombre_empleado, e.rol
+                FROM usuario u LEFT JOIN empleado e ON e.usuario_id = u.id
+                WHERE u.id = ?
             """, (id_usuario,)).fetchone()
 
             return UsuarioDAO._desde_fila(row) if row else None
@@ -56,9 +59,9 @@ class UsuarioDAO:
         conn = abrir_conexion()
         try:
             row = conn.execute("""
-                SELECT id, username, password_hash
-                FROM usuario
-                WHERE username = ?
+                SELECT u.id, u.username, u.password_hash, e.id_empleado AS empleado_id, e.nombre AS nombre_empleado, e.rol
+                FROM usuario u LEFT JOIN empleado e ON e.usuario_id = u.id
+                WHERE u.username = ?
             """, (username,)).fetchone()
 
             return UsuarioDAO._desde_fila(row) if row else None
@@ -71,9 +74,9 @@ class UsuarioDAO:
         conn = abrir_conexion()
         try:
             rows = conn.execute("""
-                SELECT id, username, password_hash
-                FROM usuario
-                ORDER BY id
+                SELECT u.id, u.username, u.password_hash, e.id_empleado AS empleado_id, e.nombre AS nombre_empleado, e.rol
+                FROM usuario u LEFT JOIN empleado e ON e.usuario_id = u.id
+                ORDER BY u.id
             """).fetchall()
 
             return [

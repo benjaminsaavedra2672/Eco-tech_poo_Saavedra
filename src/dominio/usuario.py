@@ -6,13 +6,14 @@ import os
 class Usuario:
     """Usuario del sistema; guarda un hash PBKDF2, nunca la contraseña original."""
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, password: str, empleado_id: int | None = None):
         username = username.strip()
         if not username:
             raise ValueError("El nombre de usuario es obligatorio.")
         if not password:
             raise ValueError("La contraseña es obligatoria.")
         self.username = username
+        self.empleado_id = empleado_id
         self._password_hash = self._crear_hash(password)
 
     @staticmethod
@@ -28,6 +29,7 @@ class Usuario:
         """Reconstruye el objeto desde la base sin tratar el hash como contraseña."""
         obj = cls.__new__(cls)
         obj.username = username
+        obj.empleado_id = None
         obj._password_hash = password_hash
         return obj
 
