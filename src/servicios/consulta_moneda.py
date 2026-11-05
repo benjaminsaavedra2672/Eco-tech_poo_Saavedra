@@ -132,7 +132,7 @@ def convertir_moneda(datos):
         print("No se pudo procesar el valor de la moneda.")
 
 
-def main():
+def menu_monedas():
     try:
         datos = obtener_datos()
     except (requests.RequestException, ValueError) as error:
@@ -161,4 +161,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    menu_monedas()

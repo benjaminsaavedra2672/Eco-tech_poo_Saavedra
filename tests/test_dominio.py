@@ -17,6 +17,14 @@ class TestDominio(unittest.TestCase):
         self.assertTrue(u.autenticar("clave-segura"))
         self.assertFalse(u.autenticar("incorrecta"))
 
+    def test_roles_permitidos(self):
+        admin = Usuario("admin", "clave-segura", rol="admin")
+        empleado = Usuario("empleado", "clave-segura", rol="empleado")
+        self.assertEqual(admin.rol, "admin")
+        self.assertEqual(empleado.rol, "empleado")
+        with self.assertRaises(ValueError):
+            Usuario("otro", "clave-segura", rol="superusuario")
+
     def test_empleado_valido(self):
         e = Empleado("alumno", "clave", nombre="Ana", correo="ana@example.com")
         self.assertEqual(e.obtenerSalario(), 0.0)

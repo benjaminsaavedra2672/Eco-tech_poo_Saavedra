@@ -1,60 +1,54 @@
-# EcoTech Solutions — 
+# EcoTech Solutions
 
-Este es mi proyecto de programación orientada a objetos para administrar información de EcoTech Solutions el programa está hecho en Python y permite trabajar con empleados, departamentos, proyectos y registros de tiempo también incluye inicio de sesión y persistencia de datos con SQLite o MySQL/MariaDB
+Aplicación de consola en Python para administrar empleados, departamentos, proyectos y registros de tiempo. Incluye persistencia SQLite o MySQL/MariaDB, autenticación con hash PBKDF2 y control de acceso por roles.
 
-## ¿Qué incluye?
+## Funcionalidades
 
-- **Empleados:** registrar, consultar, modificar y eliminar empleados.
-- **Departamentos:** administrar los departamentos de la empresa.
-- **Proyectos:** crear y mantener la información de los proyectos.
-- **Registros de tiempo:** guardar las horas trabajadas asociadas a empleados y proyectos.
-- **Usuarios e inicio de sesión:** validar las credenciales usando contraseñas almacenadas como hash, no como texto plano.
-- **Relación usuario-empleado:** cada empleado se vincula con su cuenta de usuario en la base de datos.
-- **Persistencia:** se puede ejecutar con SQLite para probarlo localmente o configurar MySQL/MariaDB.
-- **Pruebas:** incluye pruebas automatizadas básicas y archivos de apoyo del proyecto.
+- **Administrador (`admin`)**: administra empleados, departamentos, proyectos, registros de tiempo, usuarios y roles.
+- **Empleado (`empleado`)**: consulta su perfil, revisa sus proyectos asignados, registra horas en proyectos propios y consulta sus registros.
+- **Servicios API**: ambos perfiles pueden consultar el tiempo actual de Santiago y las tasas de cambio/conversión de monedas.
+- **Seguridad**: las contraseñas se guardan como hash; los menús se separan según el rol de la cuenta.
+- **Persistencia**: SQLite por defecto; MySQL/MariaDB configurable mediante `.env`.
 
-## Requisitos
+## Instalación y ejecución en Windows
 
-- Para usar MySQL/MariaDB, tener el servidor iniciado y una base de datos creada.
-- Las dependencias indicadas en `requirements.txt`.
-
-## Cómo instalar y ejecutar en Windows
-
-Abre PowerShell en la carpeta principal del proyecto y ejecuta:
+Desde la carpeta principal:
 
 ```powershell
 py -m venv .venv
-.venv\Scripts\Activate.ps1
+.venv\\Scripts\\Activate.ps1
 pip install -r requirements.txt
 Copy-Item .env.example .env
-```
-
-Por defecto, el archivo `.env.example` deja configurado SQLite 
-
-Para comprobar la sintaxis, ejecutar las pruebas y abrir el sistema:
-
-```powershell
 python -m compileall src
 python -m unittest discover -s tests -v
-python src\main.py
+python src\\main.py
 ```
 
-Al iniciar, el sistema prepara las tablas y carga datos de demostración que no estén registrados todavía después mostrara la pantalla de inicio de sesión.
+La aplicación crea las tablas y carga los datos de demostración al iniciar.
 
-## Inicio de sesión de prueba
+## Accesos iniciales
 
-| Usuario | Contraseña |
-|---|---|
-| `semilla.ana` | `EcoTechDemo2026!` |
-| `semilla.carlos` | `EcoTechDemo2026!` |
-| `semilla.valentina` | `EcoTechDemo2026!` |
-| `semilla.diego` | `EcoTechDemo2026!` |
+La primera ejecución crea la cuenta administradora:
 
-Son credenciales de demostración para el entorno 
-## Usar MySQL o MariaDB
+| Rol | Usuario | Contraseña inicial |
+|---|---|---|
+| Administrador | `admin` | `Admin123!` |
 
-1. Inicia MySQL/MariaDB y crea la base de datos. Puedes revisar el archivo `sql/mysql_crear_base.sql`.
-2. En el archivo `.env`, configura los datos de conexión. Por ejemplo:
+También se cargan cuentas de empleados para pruebas:
+
+| Usuario | Contraseña | Rol |
+|---|---|---|
+| `semilla.ana` | `EcoTechDemo2026!` | empleado |
+| `semilla.carlos` | `EcoTechDemo2026!` | empleado |
+| `semilla.valentina` | `EcoTechDemo2026!` | empleado |
+| `semilla.diego` | `EcoTechDemo2026!` | empleado |
+
+**Importante:** cambia la contraseña inicial del administrador antes de usar el programa con datos reales. Puedes definir `ECOTECH_ADMIN_PASSWORD` en `.env` antes del primer inicio. El cambio se aplica cuando se crea por primera vez la cuenta `admin`.
+
+## Configurar MySQL/MariaDB
+
+1. Inicia el servidor y crea la base de datos usando `sql/mysql_crear_base.sql`.
+2. Configura `.env`:
 
 ```dotenv
 DB_ENGINE=mysql
@@ -65,38 +59,20 @@ DB_USER=tu_usuario
 DB_PASSWORD=tu_clave
 ```
 
-3. Ejecuta el programa desde la carpeta principal:
+3. Ejecuta `python src\\main.py`.
 
-```powershell
-python src\main.py
-```
+Para usar SQLite, deja `DB_ENGINE=sqlite` y `DB_NAME=ecotech.db`.
 
-Para volver a SQLite, configura `DB_ENGINE=sqlite` y `DB_NAME=ecotech.db` en `.env`.
-
-No subas el archivo `.env` con contraseñas reales al repositorio. El archivo `.env.example` sirve como referencia de configuración.
-
-## Organización del código
+## Estructura
 
 ```text
 src/
-  dominio/       Clases y reglas principales del sistema
-  menus/         Menús e interacción por consola
-  persistencia/  Conexión, creación de tablas y DAO
-  servicios/     Funciones de apoyo
-  main.py        Punto de entrada del programa
+  dominio/       Entidades y reglas de negocio
+  menus/         Menú principal, menú admin, menú empleado y menú API
+  persistencia/  Conexión, esquema y DAO
+  servicios/     Autenticación, inicialización y consumo de API
+  main.py        Punto de entrada
 tests/           Pruebas automatizadas
-sql/             Script de apoyo para MySQL
- docs/           Diagrama y documentos de revisión
+sql/             Script de creación de base MySQL/MariaDB
+docs/            Documentación del proyecto
 ```
-
-Los DAO se encargan de las operaciones con la base de datos, mientras que las clases del dominio representan los datos y comportamientos del sistema.
-
-## Archivos de apoyo
-
-- `docs/diagrama de ecotech BJ.png`: diagrama del proyecto.
-- `docs/validacion_ia.md`: explicación del uso de IA como apoyo.
-- `docs/revision_critica_semilla.md`: revisión de la carga de datos de demostración.
-
-## Uso de inteligencia artificial
-
-La IA se utilizó como apoyo para revisar ideas, detectar errores y mejorar algunas partes de la documentación y del código. La revisión, adaptación y ejecución del proyecto forman parte del trabajo realizado; los detalles están en `docs/validacion_ia.md`.

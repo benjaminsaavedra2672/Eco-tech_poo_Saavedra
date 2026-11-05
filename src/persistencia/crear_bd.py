@@ -9,8 +9,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     rol TEXT NOT NULL DEFAULT 'empleado' CHECK (rol IN ('admin', 'empleado')),
-    FOREIGN KEY (empleado_id)
-        REFERENCES empleado(id_empleado)
+    FOREIGN KEY (empleado_id) REFERENCES empleado(id_empleado)
 );
 
 CREATE TABLE IF NOT EXISTS departamento (
@@ -79,11 +78,8 @@ CREATE TABLE IF NOT EXISTS usuario (
     empleado_id INT NULL,
     username VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    rol varchar(10) NOT NULL DEFAULT 'empleado' CHECK (rol IN ('admin', 'empleado')),
-    PRIMARY KEY (id),
-    CONSTRAINT fk_usuario_empleado
-        FOREIGN KEY (empleado_id)
-        REFERENCES empleado(id_empleado)
+    rol VARCHAR(10) NOT NULL DEFAULT 'empleado' CHECK (rol IN ('admin', 'empleado')),
+    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
 
@@ -141,9 +137,7 @@ CREATE TABLE IF NOT EXISTS proyecto_empleado (
         REFERENCES proyecto(id_proyecto)
         ON DELETE CASCADE,
     CONSTRAINT fk_pe_empleado
-        FOREIGN KEY (empleado_id)
-        REFERENCES empleado(id_empleado)
-        ON DELETE CASCADE
+            ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS registro_tiempo (
@@ -155,9 +149,7 @@ CREATE TABLE IF NOT EXISTS registro_tiempo (
     descripcion_tarea VARCHAR(500) NOT NULL,
     PRIMARY KEY (id_registro),
     CONSTRAINT fk_rt_empleado
-        FOREIGN KEY (empleado_id)
-        REFERENCES empleado(id_empleado)
-        ON DELETE CASCADE,
+            ON DELETE CASCADE,
     CONSTRAINT fk_rt_proyecto
         FOREIGN KEY (proyecto_id)
         REFERENCES proyecto(id_proyecto)

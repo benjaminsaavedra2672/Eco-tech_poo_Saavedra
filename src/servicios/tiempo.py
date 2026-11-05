@@ -38,15 +38,15 @@ def mostrar_tiempo(datos):
     print("=" * 40)
 
 
-try:
-    datos = obtener_tiempo()
-    mostrar_tiempo(datos)
 
-except requests.exceptions.Timeout:
-    print("Error: la conexión tardó demasiado.")
-
-except requests.exceptions.RequestException as error:
-    print(f"Error al consultar la API: {error}")
-
-except (KeyError, TypeError, ValueError):
-    print("Error: la respuesta de la API no tiene el formato esperado.")
+def consultar_y_mostrar():
+    """Consulta el tiempo únicamente cuando el usuario elige esta opción."""
+    try:
+        datos = obtener_tiempo()
+        mostrar_tiempo(datos)
+    except requests.exceptions.Timeout:
+        print("Error: la conexión tardó demasiado.")
+    except requests.exceptions.RequestException as error:
+        print(f"Error al consultar el tiempo: {error}")
+    except (KeyError, TypeError, ValueError):
+        print("Error: la respuesta de la API no tiene el formato esperado.")

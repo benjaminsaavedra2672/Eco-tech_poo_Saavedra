@@ -10,8 +10,8 @@ class EmpleadoDAO:
         try:
             cur = conn.cursor()
             cur.execute(
-                "INSERT INTO usuario(username, password_hash) VALUES (?, ?)",
-                (e.username, e._hash_para_persistencia())
+                "INSERT INTO usuario(username, password_hash, rol) VALUES (?, ?, ?)",
+                (e.username, e._hash_para_persistencia(), "empleado")
             )
             uid = cur.lastrowid
             cur.execute("""
@@ -21,6 +21,10 @@ class EmpleadoDAO:
             """, (uid, e.departamento_id, e.nombre, e.correo, e.direccion,
                   e.telefono, e.fecha_contrato, e.salario, e.rol))
             e.id_empleado = cur.lastrowid
+            conn.execute(
+                "UPDATE usuario SET empleado_id=? WHERE id=?",
+                (e.id_empleado, uid)
+            )
             conn.commit()
             return e
         except Exception:
@@ -100,10 +104,31 @@ class EmpleadoDAO:
             ).fetchone()
             if row is None:
                 return False
+            # Se rompe primero la referencia inversa usuario.empleado_id.
+            conn.execute(
+                "UPDATE usuario SET empleado_id=NULL WHERE id=?",
+                (row["usuario_id"],)
+            )
             conn.execute("DELETE FROM empleado WHERE id_empleado=?", (id_empleado,))
             conn.execute("DELETE FROM usuario WHERE id=?", (row["usuario_id"],))
             conn.commit()
             return True
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    @staticmethod
+    def actualizar_datos_personales(id_empleado, correo, direccion, telefono):
+        conn = abrir_conexion()
+        try:
+            cur = conn.execute("""
+                UPDATE empleado SET correo=?, direccion=?, telefono=?
+                WHERE id_empleado=?
+            """, (correo, direccion, telefono, id_empleado))
+            conn.commit()
+            return cur.rowcount > 0
         except Exception:
             conn.rollback()
             raise

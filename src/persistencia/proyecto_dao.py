@@ -85,3 +85,16 @@ class ProyectoDAO:
             raise
         finally:
             conn.close()
+
+    @staticmethod
+    def listar_por_empleado(id_empleado):
+        conn = abrir_conexion()
+        try:
+            return conn.execute("""
+                SELECT p.* FROM proyecto p
+                JOIN proyecto_empleado pe ON pe.proyecto_id = p.id_proyecto
+                WHERE pe.empleado_id = ?
+                ORDER BY p.id_proyecto
+            """, (id_empleado,)).fetchall()
+        finally:
+            conn.close()

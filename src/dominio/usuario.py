@@ -4,9 +4,10 @@ import os
 
 
 class Usuario:
-    """Usuario del sistema; guarda un hash PBKDF2, nunca la contraseña original."""
+    """Cuenta de acceso con permisos separados del cargo del empleado."""
+    ROLES = ("admin", "empleado")
 
-    def __init__(self, username: str, password: str, empleado_id: int | None = None):
+    def __init__(self, username: str, password: str, empleado_id: int | None = None, rol: str = "empleado"):
         username = username.strip()
         if not username:
             raise ValueError("El nombre de usuario es obligatorio.")
@@ -14,7 +15,14 @@ class Usuario:
             raise ValueError("La contraseña es obligatoria.")
         self.username = username
         self.empleado_id = empleado_id
+        self.rol = self.validar_rol(rol)
         self._password_hash = self._crear_hash(password)
+
+    @classmethod
+    def validar_rol(cls, rol):
+        if not isinstance(rol, str) or rol.strip().lower() not in cls.ROLES:
+            raise ValueError("El rol debe ser admin o empleado.")
+        return rol.strip().lower()
 
     @staticmethod
     def _crear_hash(password: str, salt: bytes | None = None) -> str:
@@ -25,11 +33,12 @@ class Usuario:
         return f"{salt.hex()}${derived.hex()}"
 
     @classmethod
-    def desde_hash(cls, username: str, password_hash: str):
+    def desde_hash(cls, username: str, password_hash: str, rol: str = "empleado"):
         """Reconstruye el objeto desde la base sin tratar el hash como contraseña."""
         obj = cls.__new__(cls)
         obj.username = username
         obj.empleado_id = None
+        obj.rol = cls.validar_rol(rol)
         obj._password_hash = password_hash
         return obj
 
@@ -55,10 +64,3 @@ class Usuario:
     def exportarReporte(self, tipo: str, formato: str) -> bool:
         return bool(tipo.strip() and formato.strip())
 
- #Dentro de la clase Usuario existente:
-    
-    @classmethod
-    def validar_rol(cls, rol):
-        if not isinstance(rol, str) or rol not in cls.ROLES:
-            raise ValueError("Rol no permitido.")
-        return rol

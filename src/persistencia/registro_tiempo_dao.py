@@ -81,3 +81,18 @@ class RegistroTiempoDAO:
             raise
         finally:
             conn.close()
+
+    @staticmethod
+    def listar_por_empleado(id_empleado):
+        conn = abrir_conexion()
+        try:
+            return conn.execute("""
+                SELECT r.*, e.nombre AS empleado, p.nombre AS proyecto
+                FROM registro_tiempo r
+                JOIN empleado e ON e.id_empleado = r.empleado_id
+                JOIN proyecto p ON p.id_proyecto = r.proyecto_id
+                WHERE r.empleado_id = ?
+                ORDER BY r.fecha DESC, r.id_registro DESC
+            """, (id_empleado,)).fetchall()
+        finally:
+            conn.close()
