@@ -17,12 +17,15 @@ from servicios.permisos import exigir_admin
 def menu_usuarios(sesion):
     exigir_admin(sesion)
     while True:
-        print("-- Administración de cuentas y roles --")
-        print("1. Listar usuarios")
-        print("2. Cambiar rol de usuario")
-        print("3. Restablecer contraseña")
-        print("4. Crear cuenta administradora")
-        print("0. Volver")
+        print("\n" + "═" * 54)
+        print("  🌿 ECOTECH  |  Cuentas y roles")
+        print("═" * 54)
+        print("   1  │  Listar usuarios")
+        print("   2  │  Cambiar rol de usuario")
+        print("   3  │  Restablecer contraseña")
+        print("   4  │  Crear cuenta administradora")
+        print("   0  │  Volver")
+        print("─" * 54)
         op = input("Opción: ").strip()
 
         if op == "0":
@@ -95,11 +98,14 @@ def _restablecer_password(sesion):
 
 def _editar_mi_cuenta(usuario):
     while True:
-        print("\n-- Mi cuenta de administrador --")
-        print(f"Usuario actual: {usuario.username}")
-        print("1. Cambiar nombre de usuario")
-        print("2. Cambiar contraseña")
-        print("0. Volver")
+        print("\n" + "═" * 54)
+        print("  🌿 ECOTECH  |  Mi cuenta de administrador")
+        print("═" * 54)
+        print(f"  Usuario actual: {usuario.username}")
+        print("   1  │  Cambiar nombre de usuario")
+        print("   2  │  Cambiar contraseña")
+        print("   0  │  Volver")
+        print("═" * 54)
         op = input("Opción: ").strip()
         if op == "0":
             return
@@ -126,17 +132,19 @@ def _editar_mi_cuenta(usuario):
 def menu_administrador(usuario):
     exigir_admin(usuario)
     while True:
-        print("\\n" + "=" * 48)
-        print(f" ECOTECH | ADMINISTRADOR: {usuario.username}")
-        print("=" * 48)
-        print("1. Gestión de empleados")
-        print("2. Gestión de departamentos")
-        print("3. Gestión de proyectos")
-        print("4. Gestión de registros de tiempo")
-        print("5. Gestión de usuarios y roles")
-        print("6. Servicios API (tiempo y monedas)")
-        print("7. Editar mi perfil / cuenta")
-        print("0. Cerrar sesión")
+        print("\n" + "═" * 54)
+        print(f"  🌿 ECOTECH  |  ADMINISTRADOR: {usuario.username}")
+        print("═" * 54)
+        print("   1  │  👥 Gestión de empleados")
+        print("   2  │  🏢 Gestión de departamentos")
+        print("   3  │  📁 Gestión de proyectos")
+        print("   4  │  ⏱  Gestión de registros de tiempo")
+        print("   5  │  🔐 Gestión de usuarios y roles")
+        print("   6  │  🌐 Servicios API (tiempo y monedas)")
+        print("   7  │  ⚙  Editar mi perfil / cuenta")
+        print("  ────────────────────────────────────────────────────")
+        print("   0  │  🚪 Cerrar sesión")
+        print("═" * 54)
         op = input("Opción: ").strip()
 
         if op == "1":

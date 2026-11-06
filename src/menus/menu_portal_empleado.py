@@ -97,16 +97,18 @@ def _editar_mis_datos(usuario):
 def menu_empleado(usuario):
     exigir_empleado(usuario)
     while True:
-        print("\\n" + "=" * 48)
-        print(f" ECOTECH | EMPLEADO: {usuario.nombre_empleado or usuario.username}")
-        print("=" * 48)
-        print("1. Consultar mi perfil")
-        print("2. Ver mis proyectos")
-        print("3. Registrar horas trabajadas")
-        print("4. Consultar mis registros de tiempo")
-        print("5. Servicios API (tiempo y monedas)")
-        print("6. Modificar mi nombre y correo")
-        print("0. Cerrar sesión")
+        print("\n" + "═" * 54)
+        print(f"  🌿 ECOTECH  |  EMPLEADO: {usuario.nombre_empleado or usuario.username}")
+        print("═" * 54)
+        print("   1  │  👤 Consultar mi perfil")
+        print("   2  │  📁 Ver mis proyectos")
+        print("   3  │  ⏱  Registrar horas trabajadas")
+        print("   4  │  📋 Consultar mis registros de tiempo")
+        print("   5  │  🌐 Servicios API (tiempo y monedas)")
+        print("   6  │  ✏  Modificar mi nombre y correo")
+        print("  ────────────────────────────────────────────────────")
+        print("   0  │  🚪 Cerrar sesión")
+        print("═" * 54)
         op = input("Opción: ").strip()
 
         if op == "1":

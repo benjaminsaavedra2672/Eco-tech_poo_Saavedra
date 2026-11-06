@@ -33,7 +33,16 @@ def _pedir_datos(fila=None):
 def menu_registros(sesion):
     registros = OperacionesAdmin(sesion, RegistroTiempoDAO)
     while True:
-        print("\n-- Registros de tiempo --\n1 Crear\n2 Listar\n3 Buscar\n4 Actualizar\n5 Eliminar\n0 Volver")
+        print("\n" + "═" * 54)
+        print("  🌿 ECOTECH  |  Registros de tiempo")
+        print("═" * 54)
+        print("   1  │  Crear registro")
+        print("   2  │  Listar registros")
+        print("   3  │  Buscar registro")
+        print("   4  │  Actualizar registro")
+        print("   5  │  Eliminar registro")
+        print("   0  │  Volver")
+        print("─" * 54)
         op = input("Opción: ").strip()
         if op == "0":
             return

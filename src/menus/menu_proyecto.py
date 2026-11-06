@@ -7,7 +7,17 @@ from .comun import ejecutar, entero, texto
 def menu_proyectos(sesion):
     ProyectoDAO = OperacionesAdmin(sesion, ProyectoDAO)
     while True:
-        print("\n-- Proyectos --\n1 Crear\n2 Listar\n3 Buscar\n4 Actualizar\n5 Eliminar\n6 Asignar empleado\n0 Volver")
+        print("\n" + "═" * 54)
+        print("  🌿 ECOTECH  |  Proyectos")
+        print("═" * 54)
+        print("   1  │  Crear proyecto")
+        print("   2  │  Listar proyectos")
+        print("   3  │  Buscar proyecto")
+        print("   4  │  Actualizar proyecto")
+        print("   5  │  Eliminar proyecto")
+        print("   6  │  Asignar empleado")
+        print("   0  │  Volver")
+        print("─" * 54)
         op = input("Opción: ").strip()
         if op == "0":
             return

@@ -224,15 +224,16 @@ def pedir_id():
 def menu_empleados(sesion):
     exigir_admin(sesion)
     while True:
-        print(
-            "\n-- Empleados --\n"
-            "1 Registrar\n"
-            "2 Listar\n"
-            "3 Buscar\n"
-            "4 Actualizar\n"
-            "5 Eliminar\n"
-            "0 Volver"
-        )
+        print("\n" + "═" * 54)
+        print("  🌿 ECOTECH  |  Gestión de empleados")
+        print("═" * 54)
+        print("   1  │  Registrar empleado")
+        print("   2  │  Listar empleados")
+        print("   3  │  Buscar empleado")
+        print("   4  │  Actualizar empleado")
+        print("   5  │  Eliminar empleado")
+        print("   0  │  Volver")
+        print("─" * 54)
 
         op = input("Opción: ").strip()
 

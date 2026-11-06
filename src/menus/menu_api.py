@@ -16,12 +16,15 @@ def _mostrar_indicador(resultado):
 
 def menu_api(sesion=None):
     while True:
-        print("-- Servicios externos / API --")
-        print("1. Consultar tiempo en Santiago")
-        print("2. Consultar tipo de cambio y convertir monedas")
-        print("3. Consultar y guardar indicador monetario")
-        print("4. Ver historial local (sin API)")
-        print("0. Volver")
+        print("\n" + "═" * 54)
+        print("  🌿 ECOTECH  |  Servicios externos / API")
+        print("═" * 54)
+        print("   1  │  Consultar tiempo en Santiago")
+        print("   2  │  Tipo de cambio y conversión")
+        print("   3  │  Consultar y guardar indicador")
+        print("   4  │  Ver historial local (sin API)")
+        print("   0  │  Volver")
+        print("─" * 54)
         opcion = input("Opción: ").strip()
 
         if opcion == "1":

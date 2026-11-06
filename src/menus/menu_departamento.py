@@ -6,7 +6,16 @@ from .comun import ejecutar, entero, texto
 def menu_departamentos(sesion):
     DepartamentoDAO = OperacionesAdmin(sesion, DepartamentoDAO)
     while True:
-        print("\n-- Departamentos --\n1 Crear\n2 Listar\n3 Buscar\n4 Actualizar\n5 Eliminar\n0 Volver")
+        print("\n" + "═" * 54)
+        print("  🌿 ECOTECH  |  Departamentos")
+        print("═" * 54)
+        print("   1  │  Crear departamento")
+        print("   2  │  Listar departamentos")
+        print("   3  │  Buscar departamento")
+        print("   4  │  Actualizar departamento")
+        print("   5  │  Eliminar departamento")
+        print("   0  │  Volver")
+        print("─" * 54)
         op = input("Opción: ").strip()
         if op == "0":
             return
