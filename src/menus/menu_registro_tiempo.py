@@ -31,7 +31,7 @@ def _pedir_datos(fila=None):
 
 
 def menu_registros(sesion):
-    RegistroTiempoDAO = OperacionesAdmin(sesion, RegistroTiempoDAO)
+    registros = OperacionesAdmin(sesion, RegistroTiempoDAO)
     while True:
         print("\n-- Registros de tiempo --\n1 Crear\n2 Listar\n3 Buscar\n4 Actualizar\n5 Eliminar\n0 Volver")
         op = input("Opción: ").strip()
@@ -40,30 +40,30 @@ def menu_registros(sesion):
         if op == "1":
             def crear():
                 datos = _pedir_datos()
-                ident = RegistroTiempoDAO.insertar(*datos)
+                ident = registros.insertar(*datos)
                 print(f"Registro creado con ID {ident}.")
             ejecutar(crear)
         elif op == "2":
             def listar():
-                filas = RegistroTiempoDAO.listar()
+                filas = registros.listar()
                 if not filas:
                     print("No hay registros de tiempo.")
                 for fila in filas:
                     print(f"{fila['id_registro']}: {fila['fecha']} | {fila['empleado']} | {fila['proyecto']} | {fila['horas_trabajadas']} h | {fila['descripcion_tarea']}")
             ejecutar(listar)
         elif op == "3":
-            ejecutar(lambda: print(RegistroTiempoDAO.buscar_por_id(entero("ID registro: ")) or "No encontrado."))
+            ejecutar(lambda: print(registros.buscar_por_id(entero("ID registro: ")) or "No encontrado."))
         elif op == "4":
             def actualizar():
                 ident = entero("ID registro: ")
-                fila = RegistroTiempoDAO.buscar_por_id(ident)
+                fila = registros.buscar_por_id(ident)
                 if not fila:
                     print("No encontrado.")
                     return
                 datos = _pedir_datos(fila)
-                print("Actualizado." if RegistroTiempoDAO.actualizar(ident, *datos) else "No encontrado.")
+                print("Actualizado." if registros.actualizar(ident, *datos) else "No encontrado.")
             ejecutar(actualizar)
         elif op == "5":
-            ejecutar(lambda: print("Eliminado." if RegistroTiempoDAO.eliminar(entero("ID registro: ")) else "No encontrado."))
+            ejecutar(lambda: print("Eliminado." if registros.eliminar(entero("ID registro: ")) else "No encontrado."))
         else:
             print("Opción no válida.")

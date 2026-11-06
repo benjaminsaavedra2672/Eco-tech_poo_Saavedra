@@ -8,6 +8,8 @@ from .menu_proyecto import menu_proyectos
 from .menu_registro_tiempo import menu_registros
 from .menu_api import menu_api
 from .comun import ejecutar, entero
+from .menu_empleado import pedir_usuario, pedir_contrasena
+from servicios.mi_cuenta import actualizar_mi_usuario, actualizar_mi_clave
 from servicios import gestion_admin as ga
 from servicios.permisos import exigir_admin
 
@@ -72,13 +74,10 @@ def _cambiar_rol(sesion):
 
 
 def _crear_admin(sesion):
-    from dominio.usuario import Usuario
-    username = input("Nuevo nombre de usuario admin: ").strip()
+    username = pedir_usuario("Nuevo nombre de usuario admin: ")
     if UsuarioDAO.buscar_por_username(username):
         raise ValueError("Ese nombre de usuario ya existe.")
-    clave = getpass("Contraseña (mínimo 8 caracteres): ")
-    if len(clave) < 8 or any(c.isspace() for c in clave):
-        raise ValueError("La contraseña debe tener 8 caracteres como mínimo y no contener espacios.")
+    clave = pedir_contrasena("Contraseña (mínimo 8 caracteres): ")
     ga.crear_admin(sesion, username, clave)
     print("Cuenta administradora creada.")
 
@@ -89,12 +88,39 @@ def _restablecer_password(sesion):
     if ident not in usuarios:
         print("Usuario no encontrado.")
         return
-    clave = getpass("Nueva contraseña (mínimo 8 caracteres): ")
-    if len(clave) < 8 or any(c.isspace() for c in clave):
-        raise ValueError("La contraseña debe tener 8 caracteres como mínimo y no contener espacios.")
-    from dominio.usuario import Usuario
+    clave = pedir_contrasena("Nueva contraseña (mínimo 8 caracteres): ")
     ga.cambiar_clave(sesion, ident, clave)
     print("Contraseña actualizada.")
+
+
+def _editar_mi_cuenta(usuario):
+    while True:
+        print("\n-- Mi cuenta de administrador --")
+        print(f"Usuario actual: {usuario.username}")
+        print("1. Cambiar nombre de usuario")
+        print("2. Cambiar contraseña")
+        print("0. Volver")
+        op = input("Opción: ").strip()
+        if op == "0":
+            return
+        if op == "1":
+            def cambiar_usuario():
+                nuevo = pedir_usuario("Nuevo usuario: ")
+                actualizar_mi_usuario(usuario, nuevo)
+                print("Nombre de usuario actualizado.")
+            ejecutar(cambiar_usuario)
+        elif op == "2":
+            def cambiar_password():
+                actual = getpass("Contraseña actual: ")
+                nueva = pedir_contrasena("Nueva contraseña: ")
+                confirmar = getpass("Confirmar nueva contraseña: ")
+                if nueva != confirmar:
+                    raise ValueError("Las contraseñas no coinciden.")
+                actualizar_mi_clave(usuario, actual, nueva)
+                print("Contraseña actualizada.")
+            ejecutar(cambiar_password)
+        else:
+            print("Opción no válida.")
 
 
 def menu_administrador(usuario):
@@ -109,6 +135,7 @@ def menu_administrador(usuario):
         print("4. Gestión de registros de tiempo")
         print("5. Gestión de usuarios y roles")
         print("6. Servicios API (tiempo y monedas)")
+        print("7. Editar mi perfil / cuenta")
         print("0. Cerrar sesión")
         op = input("Opción: ").strip()
 
@@ -124,6 +151,8 @@ def menu_administrador(usuario):
             menu_usuarios(usuario)
         elif op == "6":
             menu_api(usuario)
+        elif op == "7":
+            _editar_mi_cuenta(usuario)
         elif op == "0":
             print("Sesión de administrador cerrada.")
             return

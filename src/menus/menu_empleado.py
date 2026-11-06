@@ -273,6 +273,10 @@ def registrar(sesion):
         "departamento_id": None,
     }
 
+    from persistencia.usuario_dao import UsuarioDAO
+    if UsuarioDAO.buscar_por_username(datos["username"]):
+        raise ValueError("El nombre de usuario ya está registrado.")
+
     # Se crea y valida el objeto antes de acceder a la base de datos.
     empleado = crear_empleado_desde_datos(datos)
     ga.crear_empleado(sesion, empleado)

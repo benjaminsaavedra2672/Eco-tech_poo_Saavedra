@@ -89,3 +89,17 @@ class UsuarioDAO:
             raise
         finally:
             conn.close()
+
+    @staticmethod
+    def actualizar_username(id_usuario, username):
+        username = Usuario.normalizar_usuario(username)
+        conn = abrir_conexion()
+        try:
+            cur = conn.execute("UPDATE usuario SET username=? WHERE id=?", (username, id_usuario))
+            conn.commit()
+            return cur.rowcount > 0
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
