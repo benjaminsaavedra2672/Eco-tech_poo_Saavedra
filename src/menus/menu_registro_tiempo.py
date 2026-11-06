@@ -1,3 +1,4 @@
+from servicios.gestion_operaciones import OperacionesAdmin
 from datetime import date
 
 from persistencia.registro_tiempo_dao import RegistroTiempoDAO
@@ -29,7 +30,8 @@ def _pedir_datos(fila=None):
     return empleado_id, proyecto_id, fecha, horas, descripcion
 
 
-def menu_registros():
+def menu_registros(sesion):
+    RegistroTiempoDAO = OperacionesAdmin(sesion, RegistroTiempoDAO)
     while True:
         print("\n-- Registros de tiempo --\n1 Crear\n2 Listar\n3 Buscar\n4 Actualizar\n5 Eliminar\n0 Volver")
         op = input("Opción: ").strip()

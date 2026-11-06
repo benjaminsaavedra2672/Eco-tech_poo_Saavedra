@@ -3,6 +3,29 @@ from .usuario import Usuario
 
 
 class Empleado(Usuario):
+    MIN_NOMBRE = 2
+    MAX_NOMBRE = 100
+    MIN_CORREO = 6
+    MAX_CORREO = 254
+
+    @classmethod
+    def validar_nombre(cls, nombre):
+        if not isinstance(nombre, str):
+            raise TypeError("El nombre debe ser texto.")
+        nombre = nombre.strip()
+        if not cls.MIN_NOMBRE <= len(nombre) <= cls.MAX_NOMBRE:
+            raise ValueError("El nombre debe tener entre 2 y 100 caracteres.")
+        return nombre
+
+    @classmethod
+    def validar_correo(cls, correo):
+        if not isinstance(correo, str):
+            raise TypeError("El correo debe ser texto.")
+        correo = correo.strip().lower()
+        if not cls.MIN_CORREO <= len(correo) <= cls.MAX_CORREO or correo.count("@") != 1 or "." not in correo.split("@",1)[1] or " " in correo:
+            raise ValueError("Ingrese un correo válido (ejemplo: nombre@dominio.cl).")
+        return correo
+
     def __init__(
         self, username: str, password: str, id_empleado: int | None = None,
         nombre: str = "", correo: str = "", direccion: str = "",
@@ -23,10 +46,8 @@ class Empleado(Usuario):
         self.validar()
 
     def validar(self):
-        if not self.nombre:
-            raise ValueError("El nombre es obligatorio.")
-        if "@" not in self.correo or "." not in self.correo.rsplit("@", 1)[-1]:
-            raise ValueError("El correo no es válido.")
+        self.nombre = self.validar_nombre(self.nombre)
+        self.correo = self.validar_correo(self.correo)
         if self.salario < 0:
             raise ValueError("El salario no puede ser negativo.")
 

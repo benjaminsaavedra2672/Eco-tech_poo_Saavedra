@@ -19,7 +19,7 @@ def menu_principal():
         print(f"No se pudo inicializar la base de datos: {exc}")
         return
 
-    print("\\n=== INICIO DE SESIÓN ECOTECH ===")
+    print("=== INICIO DE SESIÓN ECOTECH ===")
     intentos = 3
     usuario_activo = None
     while intentos > 0:

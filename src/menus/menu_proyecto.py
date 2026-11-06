@@ -1,9 +1,11 @@
+from servicios.gestion_operaciones import OperacionesAdmin
 from persistencia.proyecto_dao import ProyectoDAO
 from persistencia.empleado_dao import EmpleadoDAO
 from .comun import ejecutar, entero, texto
 
 
-def menu_proyectos():
+def menu_proyectos(sesion):
+    ProyectoDAO = OperacionesAdmin(sesion, ProyectoDAO)
     while True:
         print("\n-- Proyectos --\n1 Crear\n2 Listar\n3 Buscar\n4 Actualizar\n5 Eliminar\n6 Asignar empleado\n0 Volver")
         op = input("Opción: ").strip()

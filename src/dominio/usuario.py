@@ -6,13 +6,33 @@ import os
 class Usuario:
     """Cuenta de acceso con permisos separados del cargo del empleado."""
     ROLES = ("admin", "empleado")
+    MIN_USUARIO = 3
+    MAX_USUARIO = 40
+    MIN_CLAVE = 6
+
+    @classmethod
+    def normalizar_usuario(cls, nombre):
+        if not isinstance(nombre, str):
+            raise TypeError("El usuario debe ser texto.")
+        nombre = nombre.strip().lower()
+        if not cls.MIN_USUARIO <= len(nombre) <= cls.MAX_USUARIO:
+            raise ValueError("El usuario debe tener entre 3 y 40 caracteres.")
+        if not all(c.isascii() and (c.isalnum() or c == "_") for c in nombre):
+            raise ValueError("Use letras ASCII, números o guion bajo.")
+        return nombre
+
+    @classmethod
+    def validar_clave(cls, clave):
+        if not isinstance(clave, str):
+            raise TypeError("La contraseña debe ser texto.")
+        if len(clave) < cls.MIN_CLAVE:
+            raise ValueError("Use al menos 6 caracteres.")
+        return clave
+
 
     def __init__(self, username: str, password: str, empleado_id: int | None = None, rol: str = "empleado"):
-        username = username.strip()
-        if not username:
-            raise ValueError("El nombre de usuario es obligatorio.")
-        if not password:
-            raise ValueError("La contraseña es obligatoria.")
+        username = self.normalizar_usuario(username)
+        password = self.validar_clave(password)
         self.username = username
         self.empleado_id = empleado_id
         self.rol = self.validar_rol(rol)
@@ -36,7 +56,7 @@ class Usuario:
     def desde_hash(cls, username: str, password_hash: str, rol: str = "empleado"):
         """Reconstruye el objeto desde la base sin tratar el hash como contraseña."""
         obj = cls.__new__(cls)
-        obj.username = username
+        obj.username = cls.normalizar_usuario(username)
         obj.empleado_id = None
         obj.rol = cls.validar_rol(rol)
         obj._password_hash = password_hash
@@ -52,8 +72,7 @@ class Usuario:
             return False
 
     def encriptarPassword(self, password: str) -> bool:
-        if not password:
-            return False
+        self.validar_clave(password)
         self._password_hash = self._crear_hash(password)
         return True
 

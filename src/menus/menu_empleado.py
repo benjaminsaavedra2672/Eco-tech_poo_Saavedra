@@ -6,6 +6,8 @@ from getpass import getpass
 from .menu_dominio_empleado import crear_empleado_desde_datos
 from persistencia.empleado_dao import EmpleadoDAO
 from .comun import ejecutar, entero, numero, texto
+from servicios import gestion_admin as ga
+from servicios.permisos import exigir_admin
 
 
 def pedir_usuario(mensaje="Usuario: ", actual=None):
@@ -19,14 +21,14 @@ def pedir_usuario(mensaje="Usuario: ", actual=None):
             print("El usuario es obligatorio.")
             continue
 
-        if not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", valor):
+        if not re.fullmatch(r"[A-Za-z0-9_]{3,40}", valor):
             print(
-                "Usuario inválido. Use entre 3 y 30 caracteres: "
-                "letras sin tildes, números, punto, guion o guion bajo."
+                "Usuario inválido. Use entre 3 y 40 caracteres: "
+                "letras sin tildes, números o guion bajo."
             )
             continue
 
-        return valor
+        return valor.lower()
 
 
 def pedir_nombre(mensaje="Nombre: ", actual=None):
@@ -219,7 +221,8 @@ def pedir_id():
 
         return int(valor)
 
-def menu_empleados():
+def menu_empleados(sesion):
+    exigir_admin(sesion)
     while True:
         print(
             "\n-- Empleados --\n"
@@ -237,25 +240,25 @@ def menu_empleados():
             return
 
         elif op == "1":
-            ejecutar(registrar)
+            ejecutar(lambda: registrar(sesion))
 
         elif op == "2":
-            ejecutar(listar)
+            ejecutar(lambda: listar(sesion))
 
         elif op == "3":
-            ejecutar(buscar)
+            ejecutar(lambda: buscar(sesion))
 
         elif op == "4":
-            ejecutar(actualizar)
+            ejecutar(lambda: actualizar(sesion))
 
         elif op == "5":
-            ejecutar(eliminar)
+            ejecutar(lambda: eliminar(sesion))
 
         else:
             print("Opción no válida. Seleccione una opción del menú.")
 
 
-def registrar():
+def registrar(sesion):
     print("\n-- Registrar empleado --")
 
     datos = {
@@ -272,15 +275,15 @@ def registrar():
 
     # Se crea y valida el objeto antes de acceder a la base de datos.
     empleado = crear_empleado_desde_datos(datos)
-    EmpleadoDAO.insertar(empleado)
+    ga.crear_empleado(sesion, empleado)
 
     print(f"Empleado creado con ID {empleado.id_empleado}.")
 
 
-def listar():
+def listar(sesion):
     print("\n-- Lista de empleados --")
 
-    empleados = EmpleadoDAO.listar()
+    empleados = ga.listar_empleados(sesion)
 
     if not empleados:
         print("No hay empleados registrados.")
@@ -295,11 +298,11 @@ def listar():
             f"${float(empleado.salario):.2f}"
         )
 
-def buscar():
+def buscar(sesion):
     print("\n-- Buscar empleado --")
 
     ident = pedir_id()
-    empleado = EmpleadoDAO.buscar_por_id(ident)
+    empleado = ga.buscar_empleado(sesion, ident)
 
     if not empleado:
         print("Empleado no encontrado.")
@@ -314,11 +317,11 @@ def buscar():
     print(f"Salario: ${float(empleado.salario):.2f}")
 
 
-def actualizar():
+def actualizar(sesion):
     print("\n-- Actualizar empleado --")
 
     ident = pedir_id()
-    empleado = EmpleadoDAO.buscar_por_id(ident)
+    empleado = ga.buscar_empleado(sesion, ident)
 
     if not empleado:
         print("Empleado no encontrado.")
@@ -371,17 +374,17 @@ def actualizar():
 
     empleado.validar()
 
-    if EmpleadoDAO.actualizar(empleado):
+    if ga.editar_empleado(sesion, empleado):
         print("Empleado actualizado correctamente.")
     else:
         print("No se realizaron cambios en la base de datos.")
 
 
-def eliminar():
+def eliminar(sesion):
     print("\n-- Eliminar empleado --")
 
     ident = pedir_id()
-    empleado = EmpleadoDAO.buscar_por_id(ident)
+    empleado = ga.buscar_empleado(sesion, ident)
 
     if not empleado:
         print("Empleado no encontrado.")
@@ -398,7 +401,7 @@ def eliminar():
         ).strip().lower()
 
         if confirmar == "s":
-            resultado = EmpleadoDAO.eliminar(ident)
+            resultado = ga.eliminar_empleado(sesion, ident)
 
             if resultado:
                 print("Empleado eliminado correctamente.")

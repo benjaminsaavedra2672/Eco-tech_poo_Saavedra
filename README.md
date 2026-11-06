@@ -38,10 +38,10 @@ También se cargan cuentas de empleados para pruebas:
 
 | Usuario | Contraseña | Rol |
 |---|---|---|
-| `semilla.ana` | `EcoTechDemo2026!` | empleado |
-| `semilla.carlos` | `EcoTechDemo2026!` | empleado |
-| `semilla.valentina` | `EcoTechDemo2026!` | empleado |
-| `semilla.diego` | `EcoTechDemo2026!` | empleado |
+| `semilla_ana` | `EcoTechDemo2026!` | empleado |
+| `semilla_carlos` | `EcoTechDemo2026!` | empleado |
+| `semilla_valentina` | `EcoTechDemo2026!` | empleado |
+| `semilla_diego` | `EcoTechDemo2026!` | empleado |
 
 **Importante:** cambia la contraseña inicial del administrador antes de usar el programa con datos reales. Puedes definir `ECOTECH_ADMIN_PASSWORD` en `.env` antes del primer inicio. El cambio se aplica cuando se crea por primera vez la cuenta `admin`.
 

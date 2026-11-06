@@ -11,7 +11,7 @@ def obtener_datos():
     respuesta.raise_for_status()
     datos = respuesta.json()
 
-    if datos.get("result") != "success":
+    if not isinstance(datos, dict) or datos.get("result") != "success":
         raise ValueError("No se pudieron obtener los datos de la API.")
 
     return datos
@@ -40,7 +40,9 @@ def extraer_primero(datos, moneda):
         raise ValueError("Valor de la moneda inválido.")
 
     # Devolver la fecha de actualización y el valor.
-    fecha = datos.get("time_last_update_utc", "No disponible")
+    fecha = datos.get("time_last_update_utc")
+    if not isinstance(fecha, str) or not fecha.strip():
+        raise ValueError("La API no entregó una fecha válida.")
     return fecha, valor
 
 

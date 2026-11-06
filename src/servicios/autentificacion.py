@@ -3,7 +3,10 @@ from persistencia.usuario_dao import UsuarioDAO
 
 
 def iniciar_sesion(username, password):
-    usuario = UsuarioDAO.buscar_por_username(username.strip())
+    try:
+        usuario = UsuarioDAO.buscar_por_username(username)
+    except (ValueError, TypeError):
+        return None
     if usuario and usuario.autenticar(password):
         return usuario
     return None

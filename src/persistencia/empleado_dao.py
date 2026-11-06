@@ -134,3 +134,18 @@ class EmpleadoDAO:
             raise
         finally:
             conn.close()
+
+    @staticmethod
+    def actualizar_nombre_correo(id_empleado, nombre, correo):
+        nombre = Empleado.validar_nombre(nombre)
+        correo = Empleado.validar_correo(correo)
+        conn = abrir_conexion()
+        try:
+            cur = conn.execute("UPDATE empleado SET nombre=?, correo=? WHERE id_empleado=?", (nombre, correo, id_empleado))
+            conn.commit()
+            return cur.rowcount > 0
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()

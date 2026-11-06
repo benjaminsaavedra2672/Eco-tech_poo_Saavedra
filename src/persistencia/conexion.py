@@ -1,4 +1,6 @@
-"""Conexión configurable a SQLite o MariaDB/MySQL."""
+
+"""Conexión configurable a SQLite o MariaDB/MySQL usando PyMySQL."""
+
 import os
 import sqlite3
 from pathlib import Path
@@ -16,6 +18,7 @@ def _cargar_env():
 
             if line and not line.startswith("#") and "=" in line:
                 key, value = line.split("=", 1)
+
                 os.environ.setdefault(
                     key.strip(),
                     value.strip().strip('"').strip("'")
@@ -29,42 +32,56 @@ def motor_actual():
     return os.getenv("DB_ENGINE", "sqlite").strip().lower()
 
 
+# ==================================================
+# ADAPTADOR DE CURSOR PARA PYMYSQL
+# ==================================================
+
 class CursorMySQL:
-    """Adapta el cursor de MySQL al estilo utilizado por los DAO."""
+    """Adapta las consultas SQLite al formato de PyMySQL."""
 
     def __init__(self, cursor):
         self._cursor = cursor
 
     def execute(self, sql, parametros=()):
-        self._cursor.execute(ConexionMySQL._sql(sql), parametros)
+        sql = ConexionMySQL._sql(sql)
+        self._cursor.execute(sql, parametros)
+        return self
+
+    def executemany(self, sql, parametros):
+        sql = ConexionMySQL._sql(sql)
+        self._cursor.executemany(sql, parametros)
         return self
 
     def __getattr__(self, nombre):
         return getattr(self._cursor, nombre)
 
 
+# ==================================================
+# CONEXION MYSQL / MARIADB
+# ==================================================
+
 class ConexionMySQL:
-    """Conexión compatible con consultas escritas para SQLite."""
+    """Adaptador de conexión compatible con los DAO existentes."""
 
     def __init__(self, conexion):
         self._conexion = conexion
 
     @staticmethod
     def _sql(sql):
-        # Convierte los parámetros '?' a '%s' para mysql.connector.
+        """Convierte los parámetros ? a %s."""
         return sql.replace("?", "%s")
 
     def execute(self, sql, parametros=()):
-        cursor = self._conexion.cursor(dictionary=True)
+        cursor = self._conexion.cursor()
         cursor.execute(self._sql(sql), parametros)
         return cursor
 
     def cursor(self):
-        return CursorMySQL(
-            self._conexion.cursor(dictionary=True)
-        )
+        return CursorMySQL(self._conexion.cursor())
 
     def executescript(self, script):
+        """Ejecuta varias sentencias SQL."""
+
         cursor = self._conexion.cursor()
 
         try:
@@ -73,6 +90,7 @@ class ConexionMySQL:
 
                 if sentencia:
                     cursor.execute(sentencia)
+
         finally:
             cursor.close()
 
@@ -86,12 +104,19 @@ class ConexionMySQL:
         self._conexion.close()
 
 
+# ==================================================
+# ABRIR CONEXION
+# ==================================================
+
 def abrir_conexion():
-    """Abre una conexión SQLite o MariaDB/MySQL según el archivo .env."""
+    """Abre una conexión SQLite o MariaDB/MySQL."""
+
     motor = motor_actual()
 
     # ---------------- SQLITE ----------------
+
     if motor == "sqlite":
+
         db_name = os.getenv("DB_NAME", "ecotech.db")
         path = (ROOT / db_name).resolve()
 
@@ -107,17 +132,23 @@ def abrir_conexion():
         return conn
 
     # ------------- MARIADB / MYSQL -------------
+
     if motor in ("mysql", "mariadb"):
+
         try:
-            import mysql.connector
+            import pymysql
+            import pymysql.cursors
+
         except ImportError as exc:
             raise RuntimeError(
-                "Falta el conector de MySQL/MariaDB. "
-                "Instálalo con: py -m pip install mysql-connector-python"
+                "Falta PyMySQL. Instálalo con: "
+                "py -m pip install PyMySQL"
             ) from exc
 
-        # La contraseña puede estar vacía, pero la variable debe existir.
+        # Comprobar variables necesarias.
+
         requeridas = ("DB_HOST", "DB_NAME", "DB_USER")
+
         faltantes = [
             nombre
             for nombre in requeridas
@@ -134,20 +165,23 @@ def abrir_conexion():
             )
 
         try:
-            conexion = mysql.connector.connect(
+
+            conexion = pymysql.connect(
                 host=os.getenv("DB_HOST", "localhost"),
                 port=int(os.getenv("DB_PORT", "3306")),
                 database=os.getenv("DB_NAME", "ecotech"),
                 user=os.getenv("DB_USER", "root"),
                 password=os.getenv("DB_PASSWORD", ""),
-                connection_timeout=10,
                 charset="utf8mb4",
-                use_unicode=True,
+                cursorclass=pymysql.cursors.DictCursor,
+                connect_timeout=10,
+                autocommit=False
             )
 
             return ConexionMySQL(conexion)
 
-        except mysql.connector.Error as exc:
+        except pymysql.MySQLError as exc:
+
             raise RuntimeError(
                 "No se pudo conectar a MariaDB/MySQL. "
                 "Comprueba que WampServer esté iniciado, "
@@ -157,4 +191,5 @@ def abrir_conexion():
             ) from exc
 
     raise ValueError(
-        "DB_ENGINE debe ser 'sqlite', 'mysql' o 'mariadb'.")
+        "DB_ENGINE debe ser 'sqlite', 'mysql' o 'mariadb'."
+    )

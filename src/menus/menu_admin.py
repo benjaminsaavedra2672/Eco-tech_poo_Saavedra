@@ -8,11 +8,14 @@ from .menu_proyecto import menu_proyectos
 from .menu_registro_tiempo import menu_registros
 from .menu_api import menu_api
 from .comun import ejecutar, entero
+from servicios import gestion_admin as ga
+from servicios.permisos import exigir_admin
 
 
-def menu_usuarios():
+def menu_usuarios(sesion):
+    exigir_admin(sesion)
     while True:
-        print("\\n-- Administración de cuentas y roles --")
+        print("-- Administración de cuentas y roles --")
         print("1. Listar usuarios")
         print("2. Cambiar rol de usuario")
         print("3. Restablecer contraseña")
@@ -23,19 +26,19 @@ def menu_usuarios():
         if op == "0":
             return
         elif op == "1":
-            ejecutar(_listar_usuarios)
+            ejecutar(lambda: _listar_usuarios(sesion))
         elif op == "2":
-            ejecutar(_cambiar_rol)
+            ejecutar(lambda: _cambiar_rol(sesion))
         elif op == "3":
-            ejecutar(_restablecer_password)
+            ejecutar(lambda: _restablecer_password(sesion))
         elif op == "4":
-            ejecutar(_crear_admin)
+            ejecutar(lambda: _crear_admin(sesion))
         else:
             print("Opción no válida.")
 
 
-def _listar_usuarios():
-    usuarios = UsuarioDAO.listar()
+def _listar_usuarios(sesion):
+    usuarios = ga.listar_cuentas(sesion)
     if not usuarios:
         print("No hay usuarios.")
         return
@@ -44,9 +47,9 @@ def _listar_usuarios():
         print(f"ID {u.id} | {u.username} | {u.rol.upper()} | {empleado}")
 
 
-def _cambiar_rol():
+def _cambiar_rol(sesion):
     ident = entero("ID del usuario: ")
-    usuarios = {u.id: u for u in UsuarioDAO.listar()}
+    usuarios = {u.id: u for u in ga.listar_cuentas(sesion)}
     usuario = usuarios.get(ident)
     if not usuario:
         print("Usuario no encontrado.")
@@ -64,27 +67,25 @@ def _cambiar_rol():
     if usuario.username == "admin" and rol != "admin":
         print("No se puede quitar el rol al administrador principal.")
         return
-    UsuarioDAO.cambiar_rol(ident, rol)
+    ga.cambiar_rol(sesion, ident, rol)
     print("Rol actualizado correctamente.")
 
 
-def _crear_admin():
+def _crear_admin(sesion):
     from dominio.usuario import Usuario
     username = input("Nuevo nombre de usuario admin: ").strip()
-    if len(username) < 3 or len(username) > 30:
-        raise ValueError("El usuario debe tener entre 3 y 30 caracteres.")
     if UsuarioDAO.buscar_por_username(username):
         raise ValueError("Ese nombre de usuario ya existe.")
     clave = getpass("Contraseña (mínimo 8 caracteres): ")
     if len(clave) < 8 or any(c.isspace() for c in clave):
         raise ValueError("La contraseña debe tener 8 caracteres como mínimo y no contener espacios.")
-    UsuarioDAO.insertar(Usuario(username, clave, rol="admin"))
+    ga.crear_admin(sesion, username, clave)
     print("Cuenta administradora creada.")
 
 
-def _restablecer_password():
+def _restablecer_password(sesion):
     ident = entero("ID del usuario: ")
-    usuarios = {u.id: u for u in UsuarioDAO.listar()}
+    usuarios = {u.id: u for u in ga.listar_cuentas(sesion)}
     if ident not in usuarios:
         print("Usuario no encontrado.")
         return
@@ -92,12 +93,12 @@ def _restablecer_password():
     if len(clave) < 8 or any(c.isspace() for c in clave):
         raise ValueError("La contraseña debe tener 8 caracteres como mínimo y no contener espacios.")
     from dominio.usuario import Usuario
-    temporal = Usuario("temporal", clave)
-    UsuarioDAO.actualizar_password(ident, temporal._hash_para_persistencia())
+    ga.cambiar_clave(sesion, ident, clave)
     print("Contraseña actualizada.")
 
 
 def menu_administrador(usuario):
+    exigir_admin(usuario)
     while True:
         print("\\n" + "=" * 48)
         print(f" ECOTECH | ADMINISTRADOR: {usuario.username}")
@@ -112,17 +113,17 @@ def menu_administrador(usuario):
         op = input("Opción: ").strip()
 
         if op == "1":
-            menu_empleados()
+            menu_empleados(usuario)
         elif op == "2":
-            menu_departamentos()
+            menu_departamentos(usuario)
         elif op == "3":
-            menu_proyectos()
+            menu_proyectos(usuario)
         elif op == "4":
-            menu_registros()
+            menu_registros(usuario)
         elif op == "5":
-            menu_usuarios()
+            menu_usuarios(usuario)
         elif op == "6":
-            menu_api()
+            menu_api(usuario)
         elif op == "0":
             print("Sesión de administrador cerrada.")
             return

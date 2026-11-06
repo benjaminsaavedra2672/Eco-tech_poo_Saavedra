@@ -8,8 +8,8 @@ class UsuarioDAO:
         conn = abrir_conexion()
         try:
             cur = conn.execute(
-                "INSERT INTO usuario(username, password_hash, rol) VALUES (?, ?, ?)",
-                (usuario.username, usuario._hash_para_persistencia(), usuario.rol)
+                "INSERT INTO usuario(username, password_hash, rol, empleado_id) VALUES (?, ?, ?, ?)",
+                (usuario.username, usuario._hash_para_persistencia(), usuario.rol, usuario.empleado_id)
             )
             usuario.id = cur.lastrowid
             conn.commit()
@@ -33,12 +33,13 @@ class UsuarioDAO:
 
     @staticmethod
     def buscar_por_username(username):
+        username = Usuario.normalizar_usuario(username)
         conn = abrir_conexion()
         try:
             row = conn.execute("""
                 SELECT u.id, u.username, u.password_hash, u.rol,
-                       e.id_empleado AS empleado_id, e.nombre AS nombre_empleado
-                FROM usuario u LEFT JOIN empleado e ON e.usuario_id = u.id
+                       COALESCE(u.empleado_id, e.id_empleado) AS empleado_id, e.nombre AS nombre_empleado
+                FROM usuario u LEFT JOIN empleado e ON e.id_empleado = COALESCE(u.empleado_id, (SELECT id_empleado FROM empleado WHERE usuario_id=u.id LIMIT 1))
                 WHERE u.username = ?
             """, (username,)).fetchone()
             return UsuarioDAO._desde_fila(row) if row else None
@@ -51,8 +52,8 @@ class UsuarioDAO:
         try:
             rows = conn.execute("""
                 SELECT u.id, u.username, u.password_hash, u.rol,
-                       e.id_empleado AS empleado_id, e.nombre AS nombre_empleado
-                FROM usuario u LEFT JOIN empleado e ON e.usuario_id = u.id
+                       COALESCE(u.empleado_id, e.id_empleado) AS empleado_id, e.nombre AS nombre_empleado
+                FROM usuario u LEFT JOIN empleado e ON e.id_empleado = COALESCE(u.empleado_id, (SELECT id_empleado FROM empleado WHERE usuario_id=u.id LIMIT 1))
                 ORDER BY u.id
             """).fetchall()
             return [UsuarioDAO._desde_fila(row) for row in rows]

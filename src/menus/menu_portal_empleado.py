@@ -3,11 +3,15 @@ from datetime import date
 from persistencia.empleado_dao import EmpleadoDAO
 from persistencia.proyecto_dao import ProyectoDAO
 from persistencia.registro_tiempo_dao import RegistroTiempoDAO
+from servicios.gestion_operaciones import mis_proyectos, registrar_mis_horas
 from .menu_api import menu_api
+from servicios.mi_cuenta import mi_perfil, actualizar_mis_datos, mis_registros
+from servicios.permisos import exigir_empleado
+from .menu_empleado import pedir_nombre, pedir_correo
 
 
 def _mis_datos(usuario):
-    empleado = EmpleadoDAO.buscar_por_id(usuario.empleado_id)
+    empleado = mi_perfil(usuario)
     if not empleado:
         print("No existe un perfil de empleado asociado a esta cuenta.")
         return
@@ -18,11 +22,12 @@ def _mis_datos(usuario):
     print(f"Dirección: {empleado.direccion or '-'}")
     print(f"Teléfono: {empleado.telefono or '-'}")
     print(f"Departamento ID: {empleado.departamento_id or '-'}")
-    print("Para cambiar datos personales, contacte al administrador.")
+
 
 
 def _mis_proyectos(usuario):
-    filas = ProyectoDAO.listar_por_empleado(usuario.empleado_id)
+    exigir_empleado(usuario)
+    filas = mis_proyectos(usuario)
     print("\\n-- Mis proyectos --")
     if not filas:
         print("No tienes proyectos asignados.")
@@ -33,7 +38,7 @@ def _mis_proyectos(usuario):
 
 
 def _mis_registros(usuario):
-    filas = RegistroTiempoDAO.listar_por_empleado(usuario.empleado_id)
+    filas = mis_registros(usuario)
     print("\\n-- Mis registros de tiempo --")
     if not filas:
         print("Todavía no tienes registros.")
@@ -43,7 +48,8 @@ def _mis_registros(usuario):
 
 
 def _registrar_horas(usuario):
-    proyectos = ProyectoDAO.listar_por_empleado(usuario.empleado_id)
+    exigir_empleado(usuario)
+    proyectos = mis_proyectos(usuario)
     if not proyectos:
         print("No puedes registrar horas porque no tienes proyectos asignados.")
         return
@@ -72,11 +78,24 @@ def _registrar_horas(usuario):
     if not descripcion:
         print("La descripción es obligatoria.")
         return
-    ident = RegistroTiempoDAO.insertar(usuario.empleado_id, proyecto_id, fecha, horas, descripcion)
+    ident = registrar_mis_horas(usuario, proyecto_id, fecha, horas, descripcion)
     print(f"Registro creado con ID {ident}.")
 
 
+def _editar_mis_datos(usuario):
+    actual = mi_perfil(usuario)
+    if actual is None:
+        raise ValueError("Perfil no encontrado.")
+    print("Presione Enter para conservar el valor actual.")
+    nombre = pedir_nombre(f"Nombre [{actual.nombre}]: ", actual=actual.nombre)
+    correo = pedir_correo(f"Correo [{actual.correo}]: ", actual=actual.correo)
+    if actualizar_mis_datos(usuario, nombre, correo):
+        print("Datos personales actualizados correctamente.")
+    else:
+        print("No se realizaron cambios.")
+
 def menu_empleado(usuario):
+    exigir_empleado(usuario)
     while True:
         print("\\n" + "=" * 48)
         print(f" ECOTECH | EMPLEADO: {usuario.nombre_empleado or usuario.username}")
@@ -86,6 +105,7 @@ def menu_empleado(usuario):
         print("3. Registrar horas trabajadas")
         print("4. Consultar mis registros de tiempo")
         print("5. Servicios API (tiempo y monedas)")
+        print("6. Modificar mi nombre y correo")
         print("0. Cerrar sesión")
         op = input("Opción: ").strip()
 
@@ -101,7 +121,12 @@ def menu_empleado(usuario):
         elif op == "4":
             _mis_registros(usuario)
         elif op == "5":
-            menu_api()
+            menu_api(usuario)
+        elif op == "6":
+            try:
+                _editar_mis_datos(usuario)
+            except Exception as exc:
+                print(f"No se pudieron actualizar los datos: {exc}")
         elif op == "0":
             print("Sesión de empleado cerrada.")
             return

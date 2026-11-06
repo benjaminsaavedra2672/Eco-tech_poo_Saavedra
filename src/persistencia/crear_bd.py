@@ -69,6 +69,16 @@ CREATE TABLE IF NOT EXISTS registro_tiempo (
     FOREIGN KEY (proyecto_id)
         REFERENCES proyecto(id_proyecto) ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS indicador (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fuente TEXT NOT NULL,
+    codigo TEXT NOT NULL,
+    fecha TEXT NOT NULL,
+    valor REAL NOT NULL CHECK (valor > 0),
+    unidad TEXT NOT NULL,
+    verificado_en TEXT NOT NULL,
+    UNIQUE (fuente, codigo, fecha)
+);
 """
 
 
@@ -136,7 +146,7 @@ CREATE TABLE IF NOT EXISTS proyecto_empleado (
         FOREIGN KEY (proyecto_id)
         REFERENCES proyecto(id_proyecto)
         ON DELETE CASCADE,
-    CONSTRAINT fk_pe_empleado
+    CONSTRAINT fk_pe_empleado FOREIGN KEY (empleado_id) REFERENCES empleado(id_empleado)
             ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -148,7 +158,7 @@ CREATE TABLE IF NOT EXISTS registro_tiempo (
     horas_trabajadas DECIMAL(5,2) NOT NULL,
     descripcion_tarea VARCHAR(500) NOT NULL,
     PRIMARY KEY (id_registro),
-    CONSTRAINT fk_rt_empleado
+    CONSTRAINT fk_rt_empleado FOREIGN KEY (empleado_id) REFERENCES empleado(id_empleado)
             ON DELETE CASCADE,
     CONSTRAINT fk_rt_proyecto
         FOREIGN KEY (proyecto_id)
@@ -157,6 +167,17 @@ CREATE TABLE IF NOT EXISTS registro_tiempo (
     CONSTRAINT chk_rt_horas CHECK (
         horas_trabajadas > 0 AND horas_trabajadas <= 24
     )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS indicador (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    fuente VARCHAR(100) NOT NULL,
+    codigo VARCHAR(10) NOT NULL,
+    fecha VARCHAR(80) NOT NULL,
+    valor DOUBLE NOT NULL,
+    unidad VARCHAR(30) NOT NULL,
+    verificado_en VARCHAR(40) NOT NULL,
+    UNIQUE KEY uq_indicador_observacion (fuente, codigo, fecha),
+    CONSTRAINT chk_indicador_valor CHECK (valor > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 """
 
@@ -178,6 +199,13 @@ def crear_tablas():
             )
 
         conn.executescript(esquema)
+        # Compatibilidad con bases anteriores: completar vínculo sin borrar datos.
+        if motor == "sqlite":
+            cols = {r["name"] for r in conn.execute("PRAGMA table_info(usuario)").fetchall()}
+            if "empleado_id" not in cols:
+                conn.execute("ALTER TABLE usuario ADD COLUMN empleado_id INTEGER")
+        conn.execute("""UPDATE usuario SET empleado_id=(SELECT e.id_empleado FROM empleado e WHERE e.usuario_id=usuario.id)
+                        WHERE empleado_id IS NULL AND EXISTS(SELECT 1 FROM empleado e WHERE e.usuario_id=usuario.id)""")
         conn.commit()
 
     except Exception:

@@ -27,7 +27,7 @@ DEPARTAMENTOS = [
 # almacena hash PBKDF2 a través del método existente de persistencia.
 EMPLEADOS = [
     {
-        "usuario": "semilla.ana",
+        "usuario": "semilla_ana",
         "contraseña": "EcoTechDemo2026!",
         "nombre": "Ana González",
         "correo": "ana.gonzalez.demo@ecotech.local",
@@ -38,7 +38,7 @@ EMPLEADOS = [
         "departamento": "Administración",
     },
     {
-        "usuario": "semilla.carlos",
+        "usuario": "semilla_carlos",
         "contraseña": "EcoTechDemo2026!",
         "nombre": "Carlos Muñoz",
         "correo": "carlos.munoz.demo@ecotech.local",
@@ -49,7 +49,7 @@ EMPLEADOS = [
         "departamento": "Tecnología",
     },
     {
-        "usuario": "semilla.valentina",
+        "usuario": "semilla_valentina",
         "contraseña": "EcoTechDemo2026!",
         "nombre": "Valentina Rojas",
         "correo": "valentina.rojas.demo@ecotech.local",
@@ -60,7 +60,7 @@ EMPLEADOS = [
         "departamento": "Sustentabilidad",
     },
     {
-        "usuario": "semilla.diego",
+        "usuario": "semilla_diego",
         "contraseña": "EcoTechDemo2026!",
         "nombre": "Diego Pérez",
         "correo": "diego.perez.demo@ecotech.local",
@@ -88,13 +88,13 @@ PROYECTOS = [
 ]
 
 REGISTROS = [
-    ("semilla.carlos", "Plataforma de reciclaje inteligente",
+    ("semilla_carlos", "Plataforma de reciclaje inteligente",
      "2026-10-12", 4.0, "Implementación de módulo de seguimiento"),
-    ("semilla.diego", "Plataforma de reciclaje inteligente",
+    ("semilla_diego", "Plataforma de reciclaje inteligente",
      "2026-10-13", 3.5, "Pruebas de validación de datos"),
-    ("semilla.valentina", "Optimización energética EcoTech",
+    ("semilla_valentina", "Optimización energética EcoTech",
      "2026-10-13", 2.0, "Revisión de indicadores energéticos"),
-    ("semilla.ana", "Optimización energética EcoTech",
+    ("semilla_ana", "Optimización energética EcoTech",
      "2026-10-14", 1.5, "Coordinación y revisión de avances"),
 ]
 
@@ -150,7 +150,7 @@ def cargar_semilla():
         if datos["correo"].casefold() in correos_existentes:
             print(
                 "AVISO: se omitió el empleado "
-                f"{datos['username']} porque el correo ya existe."
+                f"{datos['usuario']} porque el correo ya existe."
             )
             continue
 
@@ -200,10 +200,10 @@ def cargar_semilla():
 
     relaciones_creadas = 0
     asignaciones = [
-        ("Plataforma de reciclaje inteligente", "semilla.carlos"),
-        ("Plataforma de reciclaje inteligente", "semilla.diego"),
-        ("Optimización energética EcoTech", "semilla.valentina"),
-        ("Optimización energética EcoTech", "semilla.ana"),
+        ("Plataforma de reciclaje inteligente", "semilla_carlos"),
+        ("Plataforma de reciclaje inteligente", "semilla_diego"),
+        ("Optimización energética EcoTech", "semilla_valentina"),
+        ("Optimización energética EcoTech", "semilla_ana"),
     ]
     for nombre_proyecto, username in asignaciones:
         empleado = empleados_por_usuario.get(username)

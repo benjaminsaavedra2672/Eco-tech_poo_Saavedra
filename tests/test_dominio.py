@@ -26,12 +26,12 @@ class TestDominio(unittest.TestCase):
             Usuario("otro", "clave-segura", rol="superusuario")
 
     def test_empleado_valido(self):
-        e = Empleado("alumno", "clave", nombre="Ana", correo="ana@example.com")
+        e = Empleado("alumno", "clave_segura", nombre="Ana", correo="ana@example.com")
         self.assertEqual(e.obtenerSalario(), 0.0)
 
     def test_salario_negativo(self):
         with self.assertRaises(ValueError):
-            Empleado("alumno", "clave", nombre="Ana", correo="ana@example.com", salario=-1)
+            Empleado("alumno", "clave_segura", nombre="Ana", correo="ana@example.com", salario=-1)
 
     def test_departamento(self):
         d = Departamento(nombre="TI")

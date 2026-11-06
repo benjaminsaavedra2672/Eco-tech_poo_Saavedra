@@ -1,8 +1,10 @@
+from servicios.gestion_operaciones import OperacionesAdmin
 from persistencia.departamento_dao import DepartamentoDAO
 from .comun import ejecutar, entero, texto
 
 
-def menu_departamentos():
+def menu_departamentos(sesion):
+    DepartamentoDAO = OperacionesAdmin(sesion, DepartamentoDAO)
     while True:
         print("\n-- Departamentos --\n1 Crear\n2 Listar\n3 Buscar\n4 Actualizar\n5 Eliminar\n0 Volver")
         op = input("Opción: ").strip()
